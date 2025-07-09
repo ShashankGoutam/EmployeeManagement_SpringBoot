@@ -1,6 +1,8 @@
 package com.example.demo.controller;
+import com.example.demo.repository.DepartmentRepository;
 
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.model.Department;
 import com.example.demo.model.Employee;
 import com.example.demo.repository.EmployeeRepository;
 import jakarta.validation.Valid;
@@ -15,6 +17,9 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeRepository repository;
+    @Autowired
+    private DepartmentRepository DepartmentRepository;
+
 
     @GetMapping
     public List<Employee> getAll() {
@@ -22,9 +27,14 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public Employee create(@Valid @RequestBody Employee employee) {
+    public Employee create(@RequestBody Employee employee) {
+        Long deptId = employee.getDepartment().getId();
+        Department department = DepartmentRepository.findById(deptId).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + deptId));
+    
+        employee.setDepartment(department);
         return repository.save(employee);
-    }
+}
+
 
     @GetMapping("/{id}")
     public Employee getById(@PathVariable Long id) {

@@ -2,6 +2,8 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 public class Department {
 
@@ -12,7 +14,9 @@ public class Department {
     private String name;
 
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Employee> employees;
+
 
     public Long getId() {
         return id;

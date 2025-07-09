@@ -1,5 +1,8 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 import lombok.*;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +16,8 @@ public class Employee{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-   @NotBlank(message = "Name is required")
+    
+    @NotBlank(message = "Name is required")
     private String name;
 
     @NotBlank(message = "Role is required")
@@ -21,7 +25,10 @@ public class Employee{
 
     @ManyToOne
     @JoinColumn(name = "department_id")
+    @JsonBackReference
     private Department department;
+
+
 
     public Department getDepartment() {
         return department;
