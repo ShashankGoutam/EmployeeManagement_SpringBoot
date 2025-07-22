@@ -42,11 +42,27 @@ public class EmployeeController {
 
     @PutMapping("/{id}")
     public Employee update(@PathVariable Long id, @Valid @RequestBody Employee employee) {
-        Employee existing = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
+        Employee existing = repository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
+
         existing.setName(employee.getName());
         existing.setRole(employee.getRole());
+        existing.setEmail(employee.getEmail());
+        existing.setPhoneNumber(employee.getPhoneNumber());
+        existing.setHireDate(employee.getHireDate());
+        existing.setJobId(employee.getJobId());
+        existing.setSalary(employee.getSalary());
+
+        if (employee.getDepartment() != null) {
+            Long deptId = employee.getDepartment().getId();
+            Department department = DepartmentRepository.findById(deptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + deptId));
+            existing.setDepartment(department);
+        }
+
         return repository.save(existing);
     }
+
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
