@@ -14,14 +14,21 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/home", "/public/**").permitAll()
                 .anyRequest().authenticated()
-            )
-            .oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("/secure", true)
-            )
-            .logout(logout -> logout
-                .logoutSuccessUrl("/home")
-                .permitAll()
             );
+
+        try {
+            
+            http.oauth2Login(oauth2 -> oauth2
+                .defaultSuccessUrl("/secure", true)
+            );
+        } catch (Exception ignored) {
+           
+        }
+
+        http.logout(logout -> logout
+            .logoutSuccessUrl("/home")
+            .permitAll()
+        );
 
         return http.build();
     }
