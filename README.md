@@ -54,7 +54,7 @@ src/
 │ ├── application.properties
 ├── test/
 │ └── java/com/example/demo/ # Unit & Integration Tests
-
+```
 
 
 ---
@@ -86,7 +86,7 @@ Request body example for creating an employee:
   }
 }
 
-```
+
 
 ### 🟢 Departments
 
