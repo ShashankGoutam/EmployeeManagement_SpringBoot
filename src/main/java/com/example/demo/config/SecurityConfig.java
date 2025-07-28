@@ -15,6 +15,10 @@ public class SecurityConfig {
     @Autowired
     private Environment environment;
 
+    void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -27,7 +31,6 @@ public class SecurityConfig {
                 .permitAll()
             );
 
-        
         if (!isTestEnvironment()) {
             http.oauth2Login(oauth2 -> oauth2
                 .loginPage("/login")
@@ -35,7 +38,6 @@ public class SecurityConfig {
             );
         }
 
-        
         if (isTestEnvironment()) {
             http.csrf(csrf -> csrf.disable());
         }
@@ -43,7 +45,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private boolean isTestEnvironment() {
+    boolean isTestEnvironment() {
         return Arrays.asList(environment.getActiveProfiles()).contains("test");
     }
 }
