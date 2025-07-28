@@ -12,7 +12,9 @@ It supports full **CRUD operations** for Employees and Departments, implements *
 - 🧑‍💼 Employee ↔ Department mapping (Many-to-One)
 - 🛡️ Error handling with custom exceptions
 - ✅ Input validation with `jakarta.validation`
+- 🔐 **OAuth2 login support using GitHub**
 - 🧪 JUnit 5 test cases using `MockMvc` and Mockito
+- 📈 **Test coverage with JaCoCo — 80% on new code**
 - 🔍 API documentation using Swagger UI
 - 📊 Static code analysis with SonarCloud
 - 📬 Postman collection support
@@ -31,6 +33,8 @@ It supports full **CRUD operations** for Employees and Departments, implements *
 | Swagger (springdoc-openapi) | 2.8.9 |
 | JUnit + Mockito  | JUnit 5        |
 | SonarCloud       | Integrated     |
+| JaCoCo           | 0.8.10         |
+| Spring Security  | OAuth2 Client  |
 
 ---
 
@@ -44,12 +48,13 @@ src/
 │ │ ├── model/ # JPA Entities (Employee, Department)
 │ │ ├── repository/ # Spring Data JPA Repositories
 │ │ ├── exception/ # Custom Exceptions
+│ │ ├── config/ # Spring Security and OAuth Config
 │ │ └── DemoApplication.java
 │ └── resources/
 │ ├── application.properties
 ├── test/
-│ └── java/com/example/demo/controller/ # JUnit Test for Controller
-```
+│ └── java/com/example/demo/ # Unit & Integration Tests
+
 
 
 ---
@@ -71,10 +76,16 @@ Request body example for creating an employee:
 {
   "name": "John",
   "role": "Engineer",
+  "email": "john@example.com",
+  "phoneNumber": "9876543210",
+  "hireDate": "2025-07-28",
+  "jobId": "ENG123",
+  "salary": 70000,
   "department": {
     "id": 1
   }
 }
+
 ```
 
 ### 🟢 Departments
@@ -85,6 +96,21 @@ Request body example for creating an employee:
 | GET    | `/departments/{id}` | Get department with employees |
 | POST   | `/departments`      | Create a new department       |
 
+---
+
+### 🔐 OAuth2 Login (GitHub)
+
+Login via GitHub is supported.
+
+- Navigate to: http://localhost:8080/login
+
+- After login, you'll be redirected to /secure which shows the GitHub username.
+
+- Spring Security handles OAuth2 tokens securely via configuration.
+
+- If testing locally without OAuth is needed, the test profile bypasses OAuth and CSRF safely.
+
+---
 
 ### 📬 How to Test with Postman
 Start the application using:
@@ -97,12 +123,28 @@ http://localhost:8080/employees
 
 http://localhost:8080/departments
 
+---
+
 ### 📄 Swagger UI
 Once running, open:
 ```bash
 http://localhost:8080/swagger-ui.html
 ```
 To view and test all endpoints directly.
+
+---
+
+### 📈 Test Coverage & Quality Gate
+
+- ✅ 80% test coverage on new code
+
+- 🧪 Unit & integration tests for controllers and exceptions
+
+- 📊 Static analysis with SonarCloud
+
+- 🛡️ Security Hotspots reviewed (e.g., CSRF disabling is limited to test profile)
+
+---
 
 ### 🔍 SonarCloud Integration
 This project includes GitHub Actions for:
@@ -111,7 +153,7 @@ This project includes GitHub Actions for:
 
 - Run test cases
 
-- Upload coverage and analysis to https://sonarcloud.io/
+- Upload coverage and analysis to [SonarCloud](https://sonarcloud.io/)
 
 Make sure to add your Sonar token and organization in GitHub secrets:
 
