@@ -29,6 +29,10 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
+      - name: Run Tests
+        run: mvn test -Dspring.profiles.active=test
+
+
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
