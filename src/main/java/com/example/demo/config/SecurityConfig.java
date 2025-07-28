@@ -7,6 +7,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.Arrays;
+
 @Configuration
 public class SecurityConfig {
 
@@ -19,26 +21,29 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/home", "/login", "/public/**").permitAll()
                 .anyRequest().authenticated()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/home")
+                .permitAll()
             );
 
         
         if (!isTestEnvironment()) {
             http.oauth2Login(oauth2 -> oauth2
-                    .loginPage("/login")
-                    .defaultSuccessUrl("/secure", true));
+                .loginPage("/login")
+                .defaultSuccessUrl("/secure", true)
+            );
         }
 
-        http.logout(logout -> logout
-                .logoutSuccessUrl("/home")
-                .permitAll());
+        
+        if (isTestEnvironment()) {
+            http.csrf(csrf -> csrf.disable());
+        }
 
         return http.build();
     }
 
     private boolean isTestEnvironment() {
-        for (String profile : environment.getActiveProfiles()) {
-            if (profile.equalsIgnoreCase("test")) return true;
-        }
-        return false;
+        return Arrays.asList(environment.getActiveProfiles()).contains("test");
     }
 }

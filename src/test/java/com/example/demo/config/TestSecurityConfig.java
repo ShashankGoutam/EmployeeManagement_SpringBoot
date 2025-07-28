@@ -8,6 +8,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 public class TestSecurityConfig {
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
-        return registrationId -> null; // Dummy for tests
+        return registrationId -> null; // Dummy implementation
     }
 }
