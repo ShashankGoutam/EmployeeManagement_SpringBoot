@@ -162,9 +162,9 @@ SONAR_TOKEN
 SONAR_ORGANIZATION
 
 
-### 🏁 Getting Started (Local Setup)
+## 🏁 Getting Started (Local Setup)
 
-# Clone the repository
+### Clone the repository
 ```bash
 git clone https://github.com/ShashankGoutam/EmployeeManagement_SpringBoot.git
 cd EmployeeManagement_SpringBoot
@@ -176,11 +176,14 @@ mysql -u root -p
 # Run the app
 mvn spring-boot:run
 ```
+---
 
 ### 📌 Notes
 - ✅ This project is part of my ongoing internship at Uneecops Technologies.
 
 - 🚧 Work in progress: adding more test cases, CI/CD enhancements.
+
+---
 
 ### 🙋‍♂️ Author
 Shashank Goutam
