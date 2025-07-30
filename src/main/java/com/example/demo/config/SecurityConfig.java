@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
@@ -29,12 +31,16 @@ public class SecurityConfig {
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().authenticated()
             )
+            .oauth2Login(oauth2 -> oauth2
+                .defaultSuccessUrl("/secure", true)
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt()
+            )
             .logout(logout -> logout
                 .logoutSuccessUrl("/home")
                 .permitAll()
-            );
-
-        http
+            )
             .exceptionHandling(ex -> ex
                 .defaultAuthenticationEntryPointFor(
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
@@ -42,17 +48,16 @@ public class SecurityConfig {
                 )
             );
 
-        if (!isTestEnvironment()) {
-            http.oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("/secure", true)
-            );
-        }
-
         if (isTestEnvironment()) {
             http.csrf(csrf -> csrf.disable());
         }
 
         return http.build();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return JwtDecoders.fromIssuerLocation("https://accounts.google.com");
     }
 
     boolean isTestEnvironment() {
