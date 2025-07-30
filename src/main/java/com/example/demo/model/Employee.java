@@ -1,6 +1,6 @@
 package com.example.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -35,14 +35,8 @@ public class Employee {
 
     @ManyToOne
     @JoinColumn(name = "department_id")
-    @JsonBackReference
+    @JsonIgnoreProperties("employees") 
     private Department department;
 
-    public Department getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
+    
 }

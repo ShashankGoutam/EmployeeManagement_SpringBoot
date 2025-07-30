@@ -5,10 +5,8 @@ import com.example.demo.model.Employee;
 import com.example.demo.service.EmployeeService;
 import com.example.demo.service.DepartmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -40,37 +38,35 @@ public class EmployeeControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    void testGetAllEmployees() throws Exception {
+    private Employee createMockEmployee(Long id, String name, String role, String email, String deptName) {
         Department dept = new Department();
-        dept.setId(100L);
-        dept.setName("IT");
+        dept.setId(1L);
+        dept.setName(deptName);
 
         Employee emp = new Employee();
-        emp.setId(1L);
-        emp.setName("Alice");
-        emp.setRole("Developer");
+        emp.setId(id);
+        emp.setName(name);
+        emp.setRole(role);
+        emp.setEmail(email);
         emp.setDepartment(dept);
+        return emp;
+    }
+
+    @Test
+    void testGetAllEmployees() throws Exception {
+        Employee emp = createMockEmployee(1L, "Alice", "Developer", "alice@example.com", "Engineering");
 
         Mockito.when(employeeService.getAllEmployees()).thenReturn(List.of(emp));
 
         mockMvc.perform(get("/employees"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Alice"))
-                .andExpect(jsonPath("$[0].department.name").value("IT"));
+                .andExpect(jsonPath("$[0].department.name").value("Engineering"));
     }
 
     @Test
     void testGetEmployeeById() throws Exception {
-        Department dept = new Department();
-        dept.setId(200L);
-        dept.setName("QA");
-
-        Employee emp = new Employee();
-        emp.setId(2L);
-        emp.setName("Bob");
-        emp.setRole("Tester");
-        emp.setDepartment(dept);
+        Employee emp = createMockEmployee(2L, "Bob", "Tester", "bob@example.com", "QA");
 
         Mockito.when(employeeService.getEmployeeById(eq(2L))).thenReturn(emp);
 
@@ -86,12 +82,7 @@ public class EmployeeControllerTest {
         dept.setId(1L);
         dept.setName("Engineering");
 
-        Employee emp = new Employee();
-        emp.setId(3L);
-        emp.setName("Charlie");
-        emp.setRole("Manager");
-        emp.setEmail("charlie@example.com");
-        emp.setDepartment(dept);
+        Employee emp = createMockEmployee(3L, "Charlie", "Manager", "charlie@example.com", "Engineering");
 
         Mockito.when(departmentService.getById(eq(1L))).thenReturn(dept);
         Mockito.when(employeeService.saveEmployee(any(Employee.class))).thenReturn(emp);
@@ -122,12 +113,7 @@ public class EmployeeControllerTest {
         dept.setId(1L);
         dept.setName("Engineering");
 
-        Employee emp = new Employee();
-        emp.setId(4L);
-        emp.setName("Updated");
-        emp.setRole("Engineer");
-        emp.setEmail("updated@example.com");
-        emp.setDepartment(dept);
+        Employee emp = createMockEmployee(4L, "Updated", "Engineer", "updated@example.com", "Engineering");
 
         Mockito.when(departmentService.getById(eq(1L))).thenReturn(dept);
         Mockito.when(employeeService.updateEmployee(eq(4L), any(Employee.class))).thenReturn(emp);
@@ -162,15 +148,7 @@ public class EmployeeControllerTest {
 
     @Test
     void testGetEmployeeWithDepartment() throws Exception {
-        Department dept = new Department();
-        dept.setId(6L);
-        dept.setName("Engineering");
-
-        Employee emp = new Employee();
-        emp.setId(6L);
-        emp.setName("EmpName");
-        emp.setRole("Analyst");
-        emp.setDepartment(dept);
+        Employee emp = createMockEmployee(6L, "EmpName", "Analyst", "emp@example.com", "Engineering");
 
         Mockito.when(employeeService.getEmployeeById(6L)).thenReturn(emp);
 
