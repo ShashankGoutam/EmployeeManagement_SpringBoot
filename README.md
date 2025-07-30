@@ -112,16 +112,50 @@ Login via GitHub is supported.
 
 ---
 
-### 📬 How to Test with Postman
-Start the application using:
+🧪 How to Test with Postman
+
+Start the app:
 ```bash
 mvn spring-boot:run
 ```
-Use Postman to hit endpoints like:
+Then use Postman to hit:
 
-http://localhost:8080/employees
+```bash
+GET http://localhost:8080/employees
 
-http://localhost:8080/departments
+GET http://localhost:8080/employees/10
+
+POST http://localhost:8080/employees
+```
+
+Request Body Example:
+```json
+{
+  "name": "John",
+  "role": "Engineer",
+  "email": "john@example.com",
+  "phoneNumber": "9876543210",
+  "hireDate": "2025-07-28",
+  "jobId": "ENG123",
+  "salary": 70000,
+  "department": {
+    "id": 10
+  }
+}
+```
+
+### 💡 Redis Cache Test:
+
+1. First hit: GET /employees/10 → hits DB
+
+2. Second hit: GET /employees/10 → served from Redis
+
+3. Run redis-cli:
+```bash
+KEYS *
+GET employee::10
+PUT or DELETE /employees/10 → cache is evicted
+```
 
 ---
 
@@ -172,6 +206,9 @@ cd EmployeeManagement_SpringBoot
 # Create the database
 mysql -u root -p
 > CREATE DATABASE employee_db;
+
+# Start Redis locally
+redis-server
 
 # Run the app
 mvn spring-boot:run
