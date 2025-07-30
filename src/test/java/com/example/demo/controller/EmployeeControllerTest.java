@@ -155,6 +155,7 @@ public class EmployeeControllerTest {
 
         mockMvc.perform(get("/employees/1/details"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.department.name").value("Engineering"));
+                .andExpect(jsonPath("$.department.name").value("Engineering")); 
     }
+
 }
