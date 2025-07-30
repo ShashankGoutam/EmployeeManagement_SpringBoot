@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 import java.util.Arrays;
 
@@ -24,6 +26,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/home", "/login", "/public/**").permitAll()
+                .requestMatchers("/api/**").authenticated()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
@@ -31,9 +34,16 @@ public class SecurityConfig {
                 .permitAll()
             );
 
+        http
+            .exceptionHandling(ex -> ex
+                .defaultAuthenticationEntryPointFor(
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                    request -> request.getRequestURI().startsWith("/api/")
+                )
+            );
+
         if (!isTestEnvironment()) {
             http.oauth2Login(oauth2 -> oauth2
-                .loginPage("/login")
                 .defaultSuccessUrl("/secure", true)
             );
         }
