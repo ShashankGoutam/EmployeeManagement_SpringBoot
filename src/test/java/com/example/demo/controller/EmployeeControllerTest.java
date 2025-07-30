@@ -97,4 +97,64 @@ public class EmployeeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Charlie"));
     }
+
+    @Test
+    void testUpdateEmployee() throws Exception {
+        Department dept = new Department();
+        dept.setId(1L);
+        dept.setName("Engineering");
+
+        Employee emp = new Employee();
+        emp.setName("Updated");
+        emp.setRole("Engineer");
+        emp.setEmail("updated@example.com");
+        emp.setDepartment(dept);
+
+        Mockito.when(departmentService.getById(eq(1L))).thenReturn(dept);
+        Mockito.when(employeeService.updateEmployee(eq(1L), any(Employee.class))).thenReturn(emp);
+
+        String requestBody = """
+            {
+              "name": "Updated",
+              "role": "Engineer",
+              "email": "updated@example.com",
+              "department": {
+                "id": 1
+              }
+            }
+        """;
+
+        mockMvc.perform(put("/employees/1")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Updated"));
+    }
+
+    @Test
+    void testDeleteEmployee() throws Exception {
+        Mockito.doNothing().when(employeeService).deleteEmployee(1L);
+
+        mockMvc.perform(delete("/employees/1").with(csrf()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetEmployeeWithDepartment() throws Exception {
+        Department dept = new Department();
+        dept.setId(1L);
+        dept.setName("Engineering");
+
+        Employee emp = new Employee();
+        emp.setId(1L);
+        emp.setName("EmpName");
+        emp.setDepartment(dept);
+
+        Mockito.when(employeeService.getEmployeeById(1L)).thenReturn(emp);
+
+        mockMvc.perform(get("/employees/1/details"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.department.name").value("Engineering"));
+    }
 }
