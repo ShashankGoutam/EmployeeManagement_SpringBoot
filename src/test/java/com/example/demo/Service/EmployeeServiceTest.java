@@ -40,12 +40,14 @@ public class EmployeeServiceTest {
 
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(emp));
 
-        Employee firstCall = employeeService.getEmployeeById(1L);
-        assertEquals("Shashank", firstCall.getName());
+       
+        Employee result = employeeService.getEmployeeById(1L);
 
-        Employee secondCall = employeeService.getEmployeeById(1L);
-        assertEquals("Shashank", secondCall.getName());
+        assertNotNull(result);
+        assertEquals("Shashank", result.getName());
+        assertEquals("Engineering", result.getDepartment().getName());
 
+        
         verify(employeeRepository, times(1)).findById(1L);
     }
 
