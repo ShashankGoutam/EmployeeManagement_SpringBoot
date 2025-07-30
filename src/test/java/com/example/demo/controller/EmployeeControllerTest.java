@@ -38,25 +38,26 @@ public class EmployeeControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private Employee createMockEmployee(Long id, String name, String role, String email, String deptName) {
+    private Department getMockDepartment() {
         Department dept = new Department();
         dept.setId(1L);
-        dept.setName(deptName);
+        dept.setName("Engineering");
+        return dept;
+    }
 
+    private Employee getMockEmployee(String name, String role) {
         Employee emp = new Employee();
-        emp.setId(id);
+        emp.setId(1L);
         emp.setName(name);
         emp.setRole(role);
-        emp.setEmail(email);
-        emp.setDepartment(dept);
+        emp.setEmail(name.toLowerCase() + "@example.com");
+        emp.setDepartment(getMockDepartment());
         return emp;
     }
 
     @Test
     void testGetAllEmployees() throws Exception {
-        Employee emp = createMockEmployee(1L, "Alice", "Developer", "alice@example.com", "Engineering");
-
-        Mockito.when(employeeService.getAllEmployees()).thenReturn(List.of(emp));
+        Mockito.when(employeeService.getAllEmployees()).thenReturn(List.of(getMockEmployee("Alice", "Developer")));
 
         mockMvc.perform(get("/employees"))
                 .andExpect(status().isOk())
@@ -66,23 +67,18 @@ public class EmployeeControllerTest {
 
     @Test
     void testGetEmployeeById() throws Exception {
-        Employee emp = createMockEmployee(2L, "Bob", "Tester", "bob@example.com", "QA");
+        Mockito.when(employeeService.getEmployeeById(eq(1L))).thenReturn(getMockEmployee("Bob", "Tester"));
 
-        Mockito.when(employeeService.getEmployeeById(eq(2L))).thenReturn(emp);
-
-        mockMvc.perform(get("/employees/2"))
+        mockMvc.perform(get("/employees/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Bob"))
-                .andExpect(jsonPath("$.department.name").value("QA"));
+                .andExpect(jsonPath("$.department.name").value("Engineering"));
     }
 
     @Test
     void testCreateEmployee() throws Exception {
-        Department dept = new Department();
-        dept.setId(1L);
-        dept.setName("Engineering");
-
-        Employee emp = createMockEmployee(3L, "Charlie", "Manager", "charlie@example.com", "Engineering");
+        Department dept = getMockDepartment();
+        Employee emp = getMockEmployee("Charlie", "Manager");
 
         Mockito.when(departmentService.getById(eq(1L))).thenReturn(dept);
         Mockito.when(employeeService.saveEmployee(any(Employee.class))).thenReturn(emp);
@@ -99,9 +95,9 @@ public class EmployeeControllerTest {
         """;
 
         mockMvc.perform(post("/employees")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Charlie"))
                 .andExpect(jsonPath("$.department.name").value("Engineering"));
@@ -109,14 +105,11 @@ public class EmployeeControllerTest {
 
     @Test
     void testUpdateEmployee() throws Exception {
-        Department dept = new Department();
-        dept.setId(1L);
-        dept.setName("Engineering");
-
-        Employee emp = createMockEmployee(4L, "Updated", "Engineer", "updated@example.com", "Engineering");
+        Department dept = getMockDepartment();
+        Employee emp = getMockEmployee("Updated", "Engineer");
 
         Mockito.when(departmentService.getById(eq(1L))).thenReturn(dept);
-        Mockito.when(employeeService.updateEmployee(eq(4L), any(Employee.class))).thenReturn(emp);
+        Mockito.when(employeeService.updateEmployee(eq(1L), any(Employee.class))).thenReturn(emp);
 
         String requestBody = """
             {
@@ -129,10 +122,10 @@ public class EmployeeControllerTest {
             }
         """;
 
-        mockMvc.perform(put("/employees/4")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        mockMvc.perform(put("/employees/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Updated"))
                 .andExpect(jsonPath("$.department.name").value("Engineering"));
@@ -140,19 +133,19 @@ public class EmployeeControllerTest {
 
     @Test
     void testDeleteEmployee() throws Exception {
-        Mockito.doNothing().when(employeeService).deleteEmployee(5L);
+        Mockito.doNothing().when(employeeService).deleteEmployee(1L);
 
-        mockMvc.perform(delete("/employees/5").with(csrf()))
+        mockMvc.perform(delete("/employees/1").with(csrf()))
                 .andExpect(status().isOk());
     }
 
     @Test
     void testGetEmployeeWithDepartment() throws Exception {
-        Employee emp = createMockEmployee(6L, "EmpName", "Analyst", "emp@example.com", "Engineering");
+        Employee emp = getMockEmployee("EmpName", "Tester");
 
-        Mockito.when(employeeService.getEmployeeById(6L)).thenReturn(emp);
+        Mockito.when(employeeService.getEmployeeById(1L)).thenReturn(emp);
 
-        mockMvc.perform(get("/employees/6/details"))
+        mockMvc.perform(get("/employees/1/details"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("EmpName"))
                 .andExpect(jsonPath("$.department.name").value("Engineering"));
