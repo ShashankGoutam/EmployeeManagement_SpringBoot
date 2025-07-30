@@ -5,7 +5,6 @@ import com.example.demo.model.Employee;
 import com.example.demo.service.EmployeeService;
 import com.example.demo.service.DepartmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +57,7 @@ public class EmployeeControllerTest {
         emp.setName("Bob");
         emp.setRole("Tester");
 
-        Mockito.when(employeeService.getEmployeeById(1L)).thenReturn(emp);
+        Mockito.when(employeeService.getEmployeeById(eq(1L))).thenReturn(emp);
 
         mockMvc.perform(get("/employees/1"))
                 .andExpect(status().isOk())
@@ -80,12 +79,21 @@ public class EmployeeControllerTest {
         Mockito.when(departmentService.getById(eq(1L))).thenReturn(dept);
         Mockito.when(employeeService.saveEmployee(any(Employee.class))).thenReturn(emp);
 
-        String requestBody = objectMapper.writeValueAsString(emp);
+        String requestBody = """
+            {
+              "name": "Charlie",
+              "role": "Manager",
+              "email": "charlie@example.com",
+              "department": {
+                "id": 1
+              }
+            }
+        """;
 
         mockMvc.perform(post("/employees")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Charlie"));
     }

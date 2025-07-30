@@ -1,24 +1,22 @@
 package com.example.demo.Service;
 
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.model.Department;
 import com.example.demo.model.Employee;
 import com.example.demo.repository.EmployeeRepository;
 import com.example.demo.service.EmployeeService;
-import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
-import org.springframework.cache.interceptor.SimpleKeyGenerator;
-import org.springframework.cache.support.SimpleCacheManager;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class EmployeeServiceTest {
@@ -29,16 +27,16 @@ public class EmployeeServiceTest {
     @InjectMocks
     private EmployeeService employeeService;
 
-    @BeforeEach
-    void setup() {
-        // Optional: Clear cache between tests if using Spring's default cache manager
-    }
-
     @Test
     void testGetEmployeeById_success() {
+        Department dept = new Department();
+        dept.setId(1L);
+        dept.setName("Engineering");
+
         Employee emp = new Employee();
         emp.setId(1L);
         emp.setName("Shashank");
+        emp.setDepartment(dept); 
 
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(emp));
 
@@ -48,7 +46,6 @@ public class EmployeeServiceTest {
         Employee secondCall = employeeService.getEmployeeById(1L);
         assertEquals("Shashank", secondCall.getName());
 
-        // Accept cache call on 1st and none afterward
         verify(employeeRepository, times(1)).findById(1L);
     }
 
