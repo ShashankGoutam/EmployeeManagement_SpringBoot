@@ -19,11 +19,13 @@ public class EmployeeService {
 
     @Cacheable(value = "employees")
     public List<Employee> getAllEmployees() {
+        System.out.println("Fetching all employees from DB");
         return repository.findAll();
     }
 
     @Cacheable(value = "employee", key = "#id")
     public Employee getEmployeeById(Long id) {
+        System.out.println("Fetching employee with id " + id + " from DB");
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
     }
@@ -56,9 +58,7 @@ public class EmployeeService {
         repository.deleteById(id);
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "employees", allEntries = true)
-    })
+    @CacheEvict(value = "employees", allEntries = true)
     public Employee saveEmployee(Employee employee) {
         return repository.save(employee);
     }
