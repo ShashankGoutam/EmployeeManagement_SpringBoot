@@ -1,8 +1,8 @@
 package com.example.demo.exception;
 
 import com.example.demo.controller.EmployeeController;
-import com.example.demo.repository.DepartmentRepository;
-import com.example.demo.repository.EmployeeRepository;
+import com.example.demo.service.EmployeeService;
+import com.example.demo.service.DepartmentService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
-
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -24,14 +23,14 @@ public class GlobalExceptionHandlerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private EmployeeRepository employeeRepository;
+    private EmployeeService employeeService;
 
     @MockBean
-    private DepartmentRepository departmentRepository;
+    private DepartmentService departmentService;
 
     @Test
     void testResourceNotFoundExceptionHandling() throws Exception {
-        Mockito.when(employeeRepository.findById(999L)).thenReturn(Optional.empty());
+        when(employeeService.getEmployeeById(999L)).thenThrow(new ResourceNotFoundException("Employee not found with id: 999"));
 
         mockMvc.perform(get("/employees/999"))
                 .andExpect(status().isNotFound())

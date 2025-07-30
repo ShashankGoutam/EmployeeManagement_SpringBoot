@@ -2,10 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Department;
 import com.example.demo.model.Employee;
-import com.example.demo.repository.DepartmentRepository;
-import com.example.demo.repository.EmployeeRepository;
+import com.example.demo.service.EmployeeService;
+import com.example.demo.service.DepartmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,25 +16,25 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EmployeeController.class)
-@WithMockUser  
+@WithMockUser
 public class EmployeeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private EmployeeRepository employeeRepository;
+    private EmployeeService employeeService;
 
     @MockBean
-    private DepartmentRepository departmentRepository;
+    private DepartmentService departmentService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -46,7 +45,7 @@ public class EmployeeControllerTest {
         emp.setName("Alice");
         emp.setRole("Developer");
 
-        Mockito.when(employeeRepository.findAll()).thenReturn(List.of(emp));
+        Mockito.when(employeeService.getAllEmployees()).thenReturn(List.of(emp));
 
         mockMvc.perform(get("/employees"))
                 .andExpect(status().isOk())
@@ -59,7 +58,7 @@ public class EmployeeControllerTest {
         emp.setName("Bob");
         emp.setRole("Tester");
 
-        Mockito.when(employeeRepository.findById(eq(1L))).thenReturn(Optional.of(emp));
+        Mockito.when(employeeService.getEmployeeById(1L)).thenReturn(emp);
 
         mockMvc.perform(get("/employees/1"))
                 .andExpect(status().isOk())
@@ -78,25 +77,16 @@ public class EmployeeControllerTest {
         emp.setEmail("charlie@example.com");
         emp.setDepartment(dept);
 
-        Mockito.when(departmentRepository.findById(eq(1L))).thenReturn(Optional.of(dept));
-        Mockito.when(employeeRepository.save(any(Employee.class))).thenReturn(emp);
+        Mockito.when(departmentService.getById(eq(1L))).thenReturn(dept);
+        Mockito.when(employeeService.saveEmployee(any(Employee.class))).thenReturn(emp);
 
-        String requestBody = """
-                {
-                "name": "Charlie",
-                "role": "Manager",
-                "email": "charlie@example.com",
-                "department": {
-                "id": 1
-                }
-            }
-        """;
+        String requestBody = objectMapper.writeValueAsString(emp);
 
         mockMvc.perform(post("/employees")
-                    .with(csrf()) 
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(requestBody))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("Charlie"));
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Charlie"));
     }
 }
